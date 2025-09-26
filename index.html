@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monkey Movies</title>
+    <!-- Link to Google Fonts for modern fonts like Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ========================================= */
+        /* Global Styles */
+        /* ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            line-height: 1.8;
+            scroll-behavior: smooth;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Starry background canvas */
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1a1a1a 0%, #121212 100%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glow-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .glow-effect:hover::after {
+            opacity: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 5px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+            animation: strobe 0.3s infinite;
+        }
+
+        @keyframes strobe {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Fade-in animation for sections */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========================================= */
+        /* Navbar Styles */
+        /* ========================================= */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff6b6b;
+            text-decoration: none;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+            }
+
+            50% {
+                text-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 40px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #e0e0e0;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #ff6b6b;
+            transform: scale(1.1);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 30px;
+            height: 4px;
+            background-color: #e0e0e0;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.95);
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu li {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .mobile-menu a {
+            color: #e0e0e0;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .mobile-menu a:hover {
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        /* ========================================= */
+        /* Hero Section Styles */
+        /* ========================================= */
+        #home {
+            background: transparent;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        #home::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.2) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+        }
+
+        .hero-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-left {
+            flex: 1;
+            padding-right: 60px;
+        }
+
+        .hero-left h1 {
+            font-size: 60px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+            animation: fadeIn 1s ease;
+        }
+
+        .hero-left span {
+            color: #ff6b6b;
+            animation: strobe 0.3s infinite;
+        }
+
+        .hero-buttons {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-buttons .btn {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .hero-right {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hero-right img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 20px;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .hero-right img:hover {
+            transform: scale(1.05);
+
+        }
+
+        @media (max-width: 768px) {
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-left {
+                padding-right: 0;
+                margin-bottom: 60px;
+            }
+
+            .hero-left h1 {
+                font-size: 40px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* ========================================= */
+        /* Infinite Logo Slider Styles */
+        /* ========================================= */
+        .logo-slider {
+            overflow: hidden;
+            background: rgba(18, 18, 18, 0.95);
+            padding: 50px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-track {
+            display: flex;
+            /* animation: scroll 15s linear infinite; */
+        }
+
+        .slider-track img {
+            height: 70px;
+            margin: 0 40px;
+            filter: brightness(0.7);
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        .slider-track img:hover {
+            filter: grayscale(0%) brightness(1);
+            transform: scale(1.2);
+        }
+
+
+        .slider-track {
+            width: 200%;
+        }
+
+        /* ========================================= */
+        /* Team Section Styles */
+        /* ========================================= */
+        #team {
+            background: transparent;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .team-tile {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            padding: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .team-tile:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .team-tile img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 2px solid #ff6b6b;
+            transition: transform 0.5s ease;
+        }
+
+        .team-tile h3 {
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+
+        .team-tile p {
+            color: #b0b0b0;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========================================= */
+        /* Features Section Styles */
+        /* ========================================= */
+        #features {
+            background: transparent;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: opacity 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card i {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            animation: strobe 0.3s infinite;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            color: #b0b0b0;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            transform: translateY(-10px);
+        }
+
+        /* ========================================= */
+        /* FAQs Section Styles */
+        /* ========================================= */
+        #faqs {
+            background: transparent;
+        }
+
+        .accordion {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .accordion-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .accordion-question {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .accordion-question:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .accordion-question span {
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-question.active span {
+            transform: rotate(45deg);
+        }
+
+        .accordion-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: #b0b0b0;
+            padding: 0 20px;
+        }
+
+        .accordion-answer p {
+            padding-bottom: 20px;
+        }
+
+        /* ========================================= */
+        /* Contact Section Styles */
+        /* ========================================= */
+        #contact {
+            background: transparent;
+        }
+
+        .contact-form {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+        }
+
+        .contact-form button {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .contact-form button:hover {
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        /* ========================================= */
+        /* Footer Styles */
+        /* ========================================= */
+        footer {
+            background: rgba(18, 18, 18, 0.95);
+            color: #e0e0e0;
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 15px;
+        }
+
+        .footer-column ul li a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: #ff6b6b;
+            transform: translateX(5px);
+        }
+
+        .footer-column.social .social-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .social-icons a {
+            color: #e0e0e0;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: #ff6b6b;
+            transform: scale(1.2);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-bottom p {
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            animation: rotateBorder 3s linear infinite;
+        }
+
+        @keyframes rotateBorder {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .social-icons {
+                justify-content: center;
+            }
+        }
+
+        /* ========================================= */
+        /* Sliding Panel Styles */
+        /* ========================================= */
+        .sliding-panel {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            overflow-y: auto;
+            transition: left 0.5s ease;
+            z-index: 999;
+        }
+
+        .sliding-panel.active {
+            left: 0;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #e0e0e0;
+            transition: transform 0.3s ease;
+        }
+
+        .close-panel:hover {
+            transform: rotate(90deg);
+        }
+
+        .panel-content h2 {
+            margin-bottom: 30px;
+            color: #ff6b6b;
+        }
+
+        .panel-content p {
+            margin-bottom: 20px;
+            color: #b0b0b0;
+        }
+
+        @media (max-width: 768px) {
+            .sliding-panel {
+                width: 100%;
+            }
+        }
+
+        /* ========================================= */
+        /* Additional Responsive Styles */
+        /* ========================================= */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            section {
+                padding: 80px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .container {
+                height: 70px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            #home {
+                height: auto;
+                padding: 120px 0;
+            }
+
+            .hero-left h1 {
+                font-size: 36px;
+            }
+
+            .team-tile img {
+                width: 140px;
+                height: 140px;
+            }
+
+            .feature-card i {
+                font-size: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                padding: 4px 4px;
+                font-size: 10px;
+            }
+
+            .hero-buttons .btn {
+                margin-bottom: 15px;
+            }
+
+            .accordion-question {
+                font-size: 16px;
+            }
+        }
+
+        .bhutki {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #7f00ff, #e100ff);
+            /* Purple-Pink gradient */
+            box-shadow: 0 4px 15px rgba(225, 0, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .bhutki:hover {
+            background: linear-gradient(45deg, #e100ff, #7f00ff);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(225, 0, 255, 0.7);
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 18px;
+            margin-top: 5p;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: linear-gradient(45deg, #ff4b2b, #ff416c);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 75, 43, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Starry Background Canvas -->
+    <canvas id="stars"></canvas>
+
+    <!-- ========================================= -->
+    <!-- Navbar Section -->
+    <!-- ========================================= -->
+    <nav class="navbar glass-effect">
+        <div class="container">
+            <a href="#" class="logo">Monkey Movies</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#faqs">FAQs</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <ul class="mobile-menu glass-effect">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#team">Team</a></li>
+            <li><a href="#faqs">FAQs</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#" class="privacy-link">Privacy Policy</a></li>
+            <li><a href="#" class="terms-link">Terms of Use</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- ========================================= -->
+    <!-- Hero Section (Home) -->
+    <!-- ========================================= -->
+    <section id="home">
+        <div class="container hero-container">
+            <div class="hero-left">
+                <h1>Free <span>Movies</span></h1>
+                <p>Stream unlimited entertainment with our cutting-edge app.</p>
+                <div class="hero-buttons">
+                    <a href="https://example.com" class="button">Download APK</a>
+                    <a href="https://example.com" class="button">Download for pc</a>
+                    <a href="https://t.me/moviesfreecost" class="bhutki">join TG</a>
+                </div>
+            </div>
+            <div class="hero-right">
+                <img src="hero_phone.webp" alt="Phone App Interface">
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- Infinite Logo Slider -->
+    <!-- ========================================= -->
+    <div class="logo-slider glass-effect">
+        <marquee behavior="alternate" loop="infinite" scrolldelay="100">
+            <div class="slider-track">
+                <img src="netflix.webp" alt="Netflix">
+                <img src="mini.png" alt="Amazon">
+                <img src="jio.png" alt="Jio cinema">
+                <img src="huluh.webp" alt="Hulu">
+                <img src="zee5.png" alt="Zee5">
+                <img src="sonyliv.png" alt="sonyliv">
+                <img src="aha.webp" alt="Aha">
+                <img src="crunchy.webp" alt="Crunchy roll">
+            </div>
+        </marquee>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- Team Section -->
+    <!-- ========================================= -->
+    <section id="team">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 60px; color: #ff6b6b;">Our Team</h2>
+            <div class="team-grid">
+                <div class="team-tile glass-effect">
+                    <img src="photo_2025-09-26_21-53-18.jpg" alt="Host">
+                    <h3>App Developed By</h3>
+                    <p>𝓢𝓸𝓵𝓸 𝓕𝓻𝓸𝓶 𝓑𝓸𝓻𝓷 - App developer and manages update.</p>
+                    <a href="https://t.me/solo_from_born" class="button">Talk to us</a>
+                </div>
+                <div class="team-tile glass-effect">
+                    <img src="photo_2025-09-26_21-53-56.jpg" alt="Developer">
+                    <h3>Hosted By/Powered by</h3>
+                    <p>𝓐𝔂𝓾𝓼𝓱 𝓜𝓲𝓼𝓱𝓻𝓪 - Website hosted by and powered by</p>
+                    <a href="" class="button">Talk to us</a>
+                </div>
+                <div class="team-tile glass-effect">
+                    <img src="photo_2025-09-26_21-53-46.jpg" alt="Manager">
+                    <h3>Movies Managed By</h3>
+                    <p>𝐄𝐍𝐄𝐌𝐘 ☠️ - Extracting links and uploading movies.</p>
+                    <a href="https://t.me/Enemy_wealth" class="button">Talk to us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- Features Section -->
+    <!-- ========================================= -->
+    <section id="features">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 60px; color: #ff6b6b;">Features</h2>
+            <div class="features-grid">
+                <div class="feature-card glass-effect">
+                    <i>🎥</i>
+                    <h3>Unlimited Movies</h3>
+                    <p>Access thousands of movies for free, anytime, anywhere.</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <i>📺</i>
+                    <h3>Series Binge</h3>
+                    <p>Stream entire series without interruptions.</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <i>🧸</i>
+                    <h3>Cartoons for Kids</h3>
+                    <p>Family-friendly content for all ages.</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <i>📱</i>
+                    <h3>Mobile Friendly</h3>
+                    <p>Seamless experience on any device.</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <i>🔒</i>
+                    <h3>Secure Downloads</h3>
+                    <p>Safe and fast downloads for offline viewing.</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <i>🌐</i>
+                    <h3>Offline Viewing</h3>
+                    <p>Download and watch your favorite content offline.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- FAQs Section -->
+    <!-- ========================================= -->
+    <section id="faqs">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 60px; color: #ff6b6b;">Frequently Asked Questions</h2>
+            <div class="accordion">
+                <div class="accordion-item glass-effect">
+                    <div class="accordion-question">Is the app free? <span>+</span></div>
+                    <div class="accordion-answer">
+                        <p>Yes, Monkey Movies is completely free to use with no hidden fees.</p>
+                    </div>
+                </div>
+                <div class="accordion-item glass-effect">
+                    <div class="accordion-question">How do I download movies? <span>+</span></div>
+                    <div class="accordion-answer">
+                        <p>Select a movie and click the download button to save it.</p>
+                    </div>
+                </div>
+                <div class="accordion-item glass-effect">
+                    <div class="accordion-question">Is it legal? <span>+</span></div>
+                    <div class="accordion-answer">
+                        <p>We provide access to public domain and licensed content.</p>
+                    </div>
+                </div>
+                <div class="accordion-item glass-effect">
+                    <div class="accordion-question">What devices are supported? <span>+</span></div>
+                    <div class="accordion-answer">
+                        <p>PC, Android, and iOS support coming soon.</p>
+                    </div>
+                </div>
+                <div class="accordion-item glass-effect">
+                    <div class="accordion-question">How to join Telegram? <span>+</span></div>
+                    <div class="accordion-answer">
+                        <p>Click the Telegram button in the hero section to join.</p>
+                    </div>
+                </div>
+                <div class="accordion-item glass-effect">
+                    <div class="accordion-question">Can I request movies? <span>+</span></div>
+                    <div class="accordion-answer">
+                        <p>Yes, use the contact form to request specific titles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- Contact Section -->
+    <!-- ========================================= -->
+    <section id="contact">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 60px; color: #ff6b6b;">Contact Us</h2>
+            <form class="contact-form">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message" rows="6" required></textarea>
+                <button type="submit" class="glow-effect">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- Footer Section -->
+    <!-- ========================================= -->
+    <footer class="glass-effect">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>About Monkey Movies</h3>
+                <p>Monkey Movies offers free, unlimited access to movies, series, and cartoons. Enjoy a seamless
+                    streaming experience across devices.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#team">Team</a></li>
+                    <li><a href="#faqs">FAQs</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column social">
+                <h3>Follow Us</h3>
+                <div class="social-icons">
+                    <a href="https://t.me/moviesfreecost" title="Telegram">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="#0088cc"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 0C5.372 0 0 5.372 0 12c0 6.627 5.372 12 12 12s12-5.373 12-12c0-6.628-5.372-12-12-12zm5.734 8.497l-1.043 4.924c-.08.376-.293.469-.594.292l-1.647-1.222-0.795.764c-.088.088-.161.161-.329.161l.117-1.646 2.994-2.717c.13-.117-.028-.181-.201-.064l-3.701 2.338-1.592-.497c-.346-.107-.353-.346.074-.512l6.292-2.422c.292-.117.548.07.455.506z" />
+                        </svg>
+
+                    </a>
+                    <a href="#" title="Instagram">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="#E1306C"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.056 1.97.246 2.428.415a4.92 4.92 0 0 1 1.756 1.015 4.918 4.918 0 0 1 1.015 1.756c.169.458.359 1.258.415 2.428.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.056 1.17-.246 1.97-.415 2.428a4.918 4.918 0 0 1-1.015 1.756 4.918 4.918 0 0 1-1.756 1.015c-.458.169-1.258.359-2.428.415-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.056-1.97-.246-2.428-.415a4.918 4.918 0 0 1-1.756-1.015 4.918 4.918 0 0 1-1.015-1.756c-.169-.458-.359-1.258-.415-2.428-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.056-1.17.246-1.97.415-2.428a4.918 4.918 0 0 1 1.015-1.756 4.918 4.918 0 0 1 1.756-1.015c.458-.169 1.258-.359 2.428-.415 1.266-.058 1.646-.07 4.85-.07zm0-2.163C8.756 0 8.333.012 7.052.07 5.773.128 4.735.308 3.904.68a6.918 6.918 0 0 0-2.516 1.639A6.918 6.918 0 0 0 .68 4.835C.308 5.667.128 6.705.07 7.984.012 9.265 0 9.688 0 12c0 2.312.012 2.735.07 4.016.058 1.279.238 2.317.61 3.148a6.918 6.918 0 0 0 1.639 2.516 6.918 6.918 0 0 0 2.516 1.639c.831.372 1.869.552 3.148.61C8.333 23.988 8.756 24 12 24s3.667-.012 4.948-.07c1.279-.058 2.317-.238 3.148-.61a6.918 6.918 0 0 0 2.516-1.639 6.918 6.918 0 0 0 1.639-2.516c.372-.831.552-1.869.61-3.148.058-1.281.07-1.704.07-4.016s-.012-2.735-.07-4.016c-.058-1.279-.238-2.317-.61-3.148a6.918 6.918 0 0 0-1.639-2.516 6.918 6.918 0 0 0-2.516-1.639c-.831-.372-1.869-.552-3.148-.61C15.667.012 15.244 0 12 0zM12 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z" />
+                        </svg>
+
+                    </a>
+                    <a href="#" title="YouTube">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M23.498 6.186a2.97 2.97 0 0 0-2.091-2.096C19.492 3.5 12 3.5 12 3.5s-7.492 0-9.407.59a2.97 2.97 0 0 0-2.091 2.096A31.398 31.398 0 0 0 0 12a31.398 31.398 0 0 0 .502 5.814 2.97 2.97 0 0 0 2.091 2.096C4.508 20.5 12 20.5 12 20.5s7.492 0 9.407-.59a2.97 2.97 0 0 0 2.091-2.096A31.398 31.398 0 0 0 24 12a31.398 31.398 0 0 0-.502-5.814zM9.75 15.02V8.98l6.5 3.02-6.5 3.02z" />
+                        </svg>
+
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Monkey Movies. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <!-- ========================================= -->
+    <!-- JavaScript Section -->
+    <!-- ========================================= -->
+    <script>
+        // =========================================
+        // Starry Background Effect
+        // =========================================
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const stars = [];
+        const numStars = 200;
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.5,
+                alpha: Math.random(),
+                speed: Math.random() * 0.5 + 0.1
+            });
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.fill();
+                star.y += star.speed;
+                star.alpha += Math.random() * 0.02 - 0.01;
+                if (star.y > canvas.height) star.y = 0;
+                if (star.alpha > 1) star.alpha = 1;
+                if (star.alpha < 0.2) star.alpha = 0.2;
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        animateStars();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // =========================================
+        // Hamburger Menu Toggle
+        // =========================================
+        const hamburger = document.querySelector('.hamburger');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        // =========================================
+        // Features Fade-In Animation
+        // =========================================
+        const featureCards = document.querySelectorAll('.feature-card');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        featureCards.forEach(card => observer.observe(card));
+
+        // =========================================
+        // Accordion for FAQs
+        // =========================================
+        const accordionQuestions = document.querySelectorAll('.accordion-question');
+
+        accordionQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const isOpen = answer.style.maxHeight;
+
+                document.querySelectorAll('.accordion-answer').forEach(ans => {
+                    ans.style.maxHeight = null;
+                    ans.parentElement.querySelector('.accordion-question').classList.remove('active');
+                });
+
+                if (!isOpen) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    question.classList.add('active');
+                }
+            });
+        });
+
+        // =========================================
+        // Sliding Panels for Privacy and Terms
+        // =========================================
+        const privacyLink = document.querySelectorAll('.privacy-link');
+        const termsLink = document.querySelectorAll('.terms-link');
+        const privacyPanel = document.getElementById('privacy-panel');
+        const termsPanel = document.getElementById('terms-panel');
+        const closeButtons = document.querySelectorAll('.close-panel');
+
+        privacyLink.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                privacyPanel.classList.add('active');
+                termsPanel.classList.remove('active');
+            });
+        });
+
+        termsLink.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                termsPanel.classList.add('active');
+                privacyPanel.classList.remove('active');
+            });
+        });
+
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                privacyPanel.classList.remove('active');
+                termsPanel.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!privacyPanel.contains(e.target) && !e.target.classList.contains('privacy-link')) {
+                privacyPanel.classList.remove('active');
+            }
+            if (!termsPanel.contains(e.target) && !e.target.classList.contains('terms-link')) {
+                termsPanel.classList.remove('active');
+            }
+        });
+
+        // =========================================
+        // Contact Form Submission (Placeholder)
+        // =========================================
+        const contactForm = document.querySelector('.contact-form');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Message sent! ');
+        });
+
+        // =========================================
+        // Scroll-Based Animations
+        // =========================================
+        const sections = document.querySelectorAll('section');
+        const sectionObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 1s ease forwards';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => sectionObserver.observe(section));
+    </script>
+</body>
+
+</html>
